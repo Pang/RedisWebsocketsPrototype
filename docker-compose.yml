@@ -5,16 +5,22 @@ services:
     ports:
       - "6379:6379"
   
-  api:
+  api1:
     build:
       context: .
       dockerfile: C:\Users\RyanB\source\repos\RedisWebsocketsPrototype\RedisWebsocketsPrototype.API\Dockerfile
-    container_name: api_container
+    container_name: api_container1
     ports:
       - "5000:5000"
+    depends_on:
+      - redis
+
+  api2:
+    build:
+      context: .
+      dockerfile: C:\Users\RyanB\source\repos\RedisWebsocketsPrototype\RedisWebsocketsPrototype.API\Dockerfile
+    container_name: api_container2
+    ports:
       - "5001:5000"
     depends_on:
       - redis
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379

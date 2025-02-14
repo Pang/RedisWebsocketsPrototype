@@ -16,7 +16,7 @@
     
     socket.onopen = function () {
         console.log("Connected to WebSocket");
-        socket.send("Hello from client on server " + serverVal);
+        socket.send("Hello from client on server " + serverPort);
     };
 
     socket.onmessage = function (event) {
