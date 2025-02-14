@@ -1,0 +1,20 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+  
+  api:
+    build:
+      context: .
+      dockerfile: C:\Users\RyanB\source\repos\RedisWebsocketsPrototype\RedisWebsocketsPrototype.API\Dockerfile
+    container_name: api_container
+    ports:
+      - "5000:5000"
+      - "5001:5000"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379

@@ -1,0 +1,29 @@
+﻿<html>
+    <body>
+        <h1>Test</h1>
+    </body>
+</html>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+
+    // Get a specific parameter
+    const serverVal = params.get('server');
+    console.log("Getting server: " + serverVal);
+
+    let serverPort = serverVal == 1 ? "5000" : "5001";
+    const socket = new WebSocket("ws://localhost:" + serverPort);
+    
+    socket.onopen = function () {
+        console.log("Connected to WebSocket");
+        socket.send("Hello from client on server " + serverVal);
+    };
+
+    socket.onmessage = function (event) {
+        console.log("Message from server:", event.data);
+    };
+
+    socket.onclose = function () {
+        console.log("WebSocket closed");
+    };
+</script>
