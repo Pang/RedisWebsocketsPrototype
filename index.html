@@ -7,7 +7,7 @@
 <script>
     const params = new URLSearchParams(window.location.search);
 
-    // Get a specific parameter
+    // ?server=1 for server 1, ?server=2 for server 2
     const serverVal = params.get('server');
     console.log("Getting server: " + serverVal);
 
@@ -16,7 +16,7 @@
     
     socket.onopen = function () {
         console.log("Connected to WebSocket");
-        socket.send("Hello from client on server " + serverPort);
+        socket.send("A client on server " + serverPort + " has joined this websocket.");
     };
 
     socket.onmessage = function (event) {

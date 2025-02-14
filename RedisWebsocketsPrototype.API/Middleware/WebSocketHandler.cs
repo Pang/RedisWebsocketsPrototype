@@ -7,12 +7,14 @@ namespace RedisWebsocketsPrototype.API.Middleware;
 public class WebSocketHandler
 {
     private readonly RequestDelegate _next;
+    private readonly RedisPubSubService _redisService;
     private readonly WebSocketConnectionManager _connectionManager;
 
-    public WebSocketHandler(RequestDelegate next, WebSocketConnectionManager connectionManager)
+    public WebSocketHandler(RequestDelegate next, WebSocketConnectionManager connectionManager, RedisPubSubService redisService)
     {
         _next = next;
         _connectionManager = connectionManager;
+        _redisService = redisService;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -36,6 +38,16 @@ public class WebSocketHandler
     {
         var buffer = new byte[1024 * 4];
 
+        // Subscribe to Redis and listen for messages
+        _redisService.Subscribe("chat-channel", async (channel, message) =>
+        {
+            if (webSocket.State == WebSocketState.Open)
+            {
+                var response = Encoding.UTF8.GetBytes(message);
+                await webSocket.SendAsync(new ArraySegment<byte>(response), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+        });
+
         try
         {
             WebSocketReceiveResult result;
@@ -46,9 +58,9 @@ public class WebSocketHandler
 
                 Console.WriteLine($"Received from {socketId}: {receivedMessage}");
 
-                var responseMessage = $"Echo: {receivedMessage}";
-                var encodedResponse = Encoding.UTF8.GetBytes(responseMessage);
-                await webSocket.SendAsync(new ArraySegment<byte>(encodedResponse), WebSocketMessageType.Text, true, CancellationToken.None);
+                // Publish the received message to Redis
+                await _redisService.PublishAsync("chat-channel", receivedMessage);
+
 
             } while (!result.CloseStatus.HasValue);
         }
